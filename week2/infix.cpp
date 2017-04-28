@@ -25,19 +25,21 @@ string convertInfixToPostfix(const string & infix)
      topToken;
      
    string postfix;
-   Stack<T> gStack;
+   Stack<char> gStack;
    const string BLANK = " ";
-   
-   for (int i = 0; i < exp.length(); i++)
+   const string NOTHING = "";
+
+   for (int i = 0; i < infix.size(); i++)
    {
-     token = exp[i];
+     token = infix[i];
      
      if (token == ' ')
-       break;
+     {
+        
+     }
      else if (token == '(')
      {
        gStack.push(token);
-       break;
      }
      else if (token == ')')
      {
@@ -49,11 +51,16 @@ string convertInfixToPostfix(const string & infix)
          postfix.append(BLANK + topToken);
        }
      }
-     else if (token == '+' || token == '-' || token == '*' || token == '/' || token == '%')
+     else if (token == '+' || token == '-' || token == '*' || token == '/' || token == '%' || token == '^')
      {
        for (;;)
        {
          if (gStack.empty() || gStack.top() == '(' || (token == '*' || token == '/' || token == '%') && (gStack.top() == '+' || gStack.top() == '-'))
+         {
+           gStack.push(token);
+           break;
+         }
+         else if (gStack.empty() || token == '^')
          {
            gStack.push(token);
            break;
@@ -72,11 +79,12 @@ string convertInfixToPostfix(const string & infix)
        
        for (;;)
        {
-         if (!isalnum(exp[i+1]))
+         if (!isalnum(infix[i+1]) && infix[i+1] != '.')
            break;
            
          i++;
-         token = exp[i];
+         token = infix[i];
+       
          postfix.append(1, token);
        }
      }
@@ -92,7 +100,7 @@ string convertInfixToPostfix(const string & infix)
      
      if (topToken != '(')
      {
-       postfix.append(BLAKN + topToken);
+       postfix.append(BLANK + topToken);
      }
      else
      {
