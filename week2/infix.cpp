@@ -21,13 +21,14 @@ using namespace std;
  *****************************************************/
 string convertInfixToPostfix(const string & infix)
 {
-   char token,
-     topToken;
-     
-   string postfix;
    Stack<char> gStack;
-   const string BLANK = " ";
-   const string NOTHING = "";
+   string postfix;
+
+   
+   char token, topToken;
+   
+   //just for inserting spaces, needs to be const string
+   const string NOTHING = "", SPACE = " ";
 
    for (int i = 0; i < infix.size(); i++)
    {
@@ -35,7 +36,7 @@ string convertInfixToPostfix(const string & infix)
      
      if (token == ' ')
      {
-        
+        //do nothing, it's just a space (spaces are added automatically)
      }
      else if (token == '(')
      {
@@ -47,20 +48,19 @@ string convertInfixToPostfix(const string & infix)
        {
          topToken = gStack.top();
          gStack.pop();
-         if (topToken == '(') break;
-         postfix.append(BLANK + topToken);
+         
+         if (topToken == '(') 
+           break;
+           
+         postfix.append(SPACE + topToken);
        }
      }
      else if (token == '+' || token == '-' || token == '*' || token == '/' || token == '%' || token == '^')
      {
        for (;;)
        {
-         if (gStack.empty() || gStack.top() == '(' || (token == '*' || token == '/' || token == '%') && (gStack.top() == '+' || gStack.top() == '-'))
-         {
-           gStack.push(token);
-           break;
-         }
-         else if (gStack.empty() || token == '^')
+         if (gStack.empty() || gStack.top() == '(' || token == '^' || //priority
+         (token == '*' || token == '/' || token == '%') && (gStack.top() == '+' || gStack.top() == '-')) // *, /, and % over + and -
          {
            gStack.push(token);
            break;
@@ -69,17 +69,17 @@ string convertInfixToPostfix(const string & infix)
          {
            topToken = gStack.top();
            gStack.pop();
-           postfix.append(BLANK + topToken);
+           postfix.append(SPACE + topToken);
          }
        }
      }
      else
      {
-       postfix.append(BLANK + token);
+       postfix.append(SPACE + token);
        
        for (;;)
        {
-         if (!isalnum(infix[i+1]) && infix[i+1] != '.')
+         if (!isalnum(infix[i+1]) && infix[i+1] != '.') //detects repeating numbers and decimals
            break;
            
          i++;
@@ -100,12 +100,11 @@ string convertInfixToPostfix(const string & infix)
      
      if (topToken != '(')
      {
-       postfix.append(BLANK + topToken);
+       postfix.append(SPACE + topToken);
      }
      else
      {
-       cout << "ERROR ALERT";
-       break;
+       break; //an error occured?
      }
    }
 
