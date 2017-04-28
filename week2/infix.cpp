@@ -21,17 +21,9 @@ using namespace std;
  *****************************************************/
 string convertInfixToPostfix(const string & infix)
 {
-   char token;
-   char toptoken;
-   Stack <char> tokenStack;
    
    string postfix;
-   const string BLANK = " ";
-   
-   for (int i = 0; i < infix.lenght(); i++)
-   {
-     token = infix[i];
-   }
+  
 
    return postfix;
 }
