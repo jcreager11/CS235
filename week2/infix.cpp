@@ -19,11 +19,48 @@ using namespace std;
  * CONVERT INFIX TO POSTFIX
  * Convert infix equation "5 + 2" into postifx "5 2 +"
  *****************************************************/
-string convertInfixToPostfix(const string & infix)
+string convertInfixToPostfix(const string & infix) 
 {
-   
+	   
+   //loop through the string 
+   //assign numerical values to one stack
+   //assign operators to another
+   //
+   char token;
+   char toptoken;
+   string tokenString;
    string postfix;
-  
+   const char BLANK = ' ';
+   // (2 + 2) + 3 - 4
+    for (int i = 0; i < infix.length(); i++)
+	{
+		cout << "starting loop i = " << i << endl;
+		int num = 0;
+		if(BLANK != infix[i])
+		{
+			if(infix[i] == '+' 
+				|| infix[i] == '-'
+				|| infix[i] == '*'
+				|| infix[i] == '/')
+			{
+				cout << "adding token if\n";
+				tokenString += infix[i];
+			}
+			else
+			{
+				cout << "adding num\n";
+				int num = infix[i];
+				postfix += num;
+			}
+		}
+		else
+		{
+			cout << "adding blank\n";
+			postfix += BLANK;
+		}
+	}
+	//2 2 + 3 4 - +
+	postfix += tokenString;
 
    return postfix;
 }
@@ -71,6 +108,8 @@ void testInfixToPostfix()
 string convertPostfixToAssembly(const string & postfix)
 {
    string assembly;
+
+   
 
    return assembly;
 }
