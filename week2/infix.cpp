@@ -44,7 +44,9 @@ string convertInfixToPostfix(const string & infix)
 				|| infix[i] == '/')
 			{
 				cout << "adding token if\n";
+				tokenString +=BLANK;
 				tokenString += infix[i];
+				postfix -= BLANK;
 			}
 			else
 			{
