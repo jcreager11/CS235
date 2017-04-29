@@ -1,7 +1,7 @@
 ###############################################################
 # Program:
 #     Week 02, STACK
-#     Brother LinwoodJ, CS235
+#     Brother JonesL, CS235
 # Author:
 #     Wesley Dike
 #     Hans Peterson
