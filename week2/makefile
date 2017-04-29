@@ -1,11 +1,16 @@
 ###############################################################
 # Program:
 #     Week 02, STACK
-#     Brother XXXX, CS235
+#     Brother LinwoodJ, CS235
 # Author:
-#     <your name here>
+#     Wesley Dike
+#     Hans Peterson
+#     Joslyn Sidamonidze
+#     Daniel Nacher
 # Summary:
-#     <put a description here>
+#     This program creates the stack class, and also contains
+#     a function which will convert infix notation to postfix
+#     notation.
 # Time:
 #     <how long did it take to complete this program>?
 ###############################################################

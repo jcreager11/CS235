@@ -180,6 +180,11 @@ Stack <T> & Stack <T> :: operator  = (const Stack <T> & rhs) throw (const char *
   }
   
   // copy over the capacity and size
+  
+  assert(rhs.item >= 0 && rhs.item <= rhs.cap);
+  cap = rhs.cap;
+  item = rhs.item;
+  
   for (int i = 0; i < item; i++)
   {
     data[i] = rhs.data[i];
