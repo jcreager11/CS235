@@ -53,10 +53,9 @@ int main()
    cin  >> choice;
    switch (choice)
    {
-      /*case 'a':
+      case 'a':
          stocksBuySell();
          break;
-         */
       case '1':
          testSimple();
          cout << "Test 1 complete\n";

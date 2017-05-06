@@ -1,15 +1,11 @@
 ###############################################################
 # Program:
-#     Week 03, QUEUE
-#     Brother JonesL, CS235
+#     Assignment 03, QUEUE
+#     Brother XXXX, CS235
 # Author:
-#     Hans Peterson
-#     Wesley Dike
-#     Joslyn Sidamonidze
-#     Daniel Nacher
+#     <your name here>
 # Summary:
-#     Defines a queue class and a program which can buy,
-#     sell, and display stocks.
+#     <put a description here>
 # Time:
 #     <how long did it take to complete this program>?
 ###############################################################
@@ -17,21 +13,21 @@
 ##############################################################
 # The main rule
 ##############################################################
-a.out: queue.h week03.o dollars.o stock.o
-	g++ -o a.out week03.o dollars.o stock.o
-	tar -cf week03.tar *.h *.cpp makefile
+a.out: queue.h assignment03.o dollars.o stock.o
+	g++ -o a.out assignment03.o dollars.o stock.o
+	tar -cf assignment03.tar *.h *.cpp makefile
 
 dollarsTest: dollars.o dollarsTest.cpp
 	g++ -o dollarsTest dollars.o dollarsTest.cpp
 
 ##############################################################
 # The individual components
-#      week03.o       : the driver program
+#      assignment03.o : the driver program
 #      dollars.o      : the Dollars class
 #      stock.o        : the logic for the stock program
 ##############################################################
-week03.o: queue.h week03.cpp
-	g++ -c week03.cpp
+assignment03.o: queue.h assignment03.cpp
+	g++ -c assignment03.cpp
 
 dollars.o: dollars.h dollars.cpp
 	g++ -c dollars.cpp
