@@ -11,12 +11,10 @@
 #ifndef NOW_SERVING_H
 #define NOW_SERVING_H
 
-
 #include "deque.h"     // for DEQUE
 
 // the interactive nowServing program
 void nowServing();
-
 
 #endif // NOW_SERVING_H
 

@@ -1,6 +1,6 @@
 /***********************************************************************
 * Program:
-*    Week 04, DEQUE
+*    Assignment 04, DEQUE
 *    Brother Helfrich, CS 235
 * Author:
 *    Br. Helfrich
@@ -15,8 +15,15 @@
 #include <cassert>      // for ASSERT
 #include "deque.h"      // your Deque class should be in deque.h
 #include "nowServing.h" // your nowServing() function
-using namespace std;
 
+using std::cout;
+using std::cin;
+using std::endl;
+using std::string;
+using std::ostream;
+using std::ios;
+//using namespace std;
+using namespace custom;
 
 // prototypes for our four test functions
 void testSimple();
@@ -90,36 +97,32 @@ void testSimple()
    {
       // Test 1.a: bool Deque with default constructor
       cout << "Create a bool Deque using default constructor\n";
-      Deque <bool> d1;
+      deque <bool> d1;
       cout << "\tSize:     " << d1.size()                   << endl;
-      cout << "\tCapacity: " << d1.capacity()               << endl;
       cout << "\tEmpty?    " << (d1.empty() ? "Yes" : "No") << endl;
 
       // Test 1.b: double Deque with non-default constructor
       cout << "Create a double Deque using the non-default constructor\n";
-      Deque <double> d2(10 /*capacity*/);
+      deque <double> d2(10 /*capacity*/);
       cout << "\tSize:     " << d2.size()                   << endl;
-      cout << "\tCapacity: " << d2.capacity()               << endl;
       cout << "\tEmpty?    " << (d2.empty() ? "Yes" : "No") << endl;
 
       // Test 1.c: copy the Deque using the copy constructor
       {
          cout << "Create a double Deque using the copy constructor\n";
-         Deque <double> d3(d2);
+         deque <double> d3(d2);
          cout << "\tSize:     " << d3.size()                   << endl;
-         cout << "\tCapacity: " << d3.capacity()               << endl;
          cout << "\tEmpty?    " << (d3.empty() ? "Yes" : "No") << endl;
       }
 
       // Test 1.d: copy the Deque using the assignment operator
       cout << "Copy a double Deque using the assignment operator\n";
-      Deque <double> d4(2);
+      deque <double> d4(2);
       d4 = d2;
       d2.clear();
-      d2.push_back(1.3);
+      d2.push_back(1.2);
       
       cout << "\tSize:     " << d4.size()                   << endl;
-      cout << "\tCapacity: " << d4.capacity()               << endl;
       cout << "\tEmpty?    " << (d4.empty() ? "Yes" : "No") << endl;
    }
    catch (const char * error)
@@ -136,7 +139,7 @@ void testSimple()
  * Display the contents of the deque
  ******************************************/
 template <class T>
-ostream & operator << (ostream & out, Deque <T> d)
+ostream & operator << (ostream & out, deque <T> d)
 {
 
    out << "{ ";
@@ -163,7 +166,7 @@ void testPushPopFront()
    try
    {
       // create
-      Deque <int> d1;
+      deque <int> d1;
 
       // fill
       cout << "Enter integer values, type 0 when done\n";
@@ -180,12 +183,11 @@ void testPushPopFront()
       // display how big it is
       cout << "\tSize:     " << d1.size()                   << endl;
       cout << "\tEmpty?    " << (d1.empty() ? "Yes" : "No") << endl;
-      cout << "\tCapacity: " << d1.capacity()               << endl;
 
       // make a copy of it using the assignment operator and copy constructor
-      Deque <int> d2(2);
+      deque <int> d2(2);
       d2 = d1;
-      Deque <int> d3(d1);
+      deque <int> d3(d1);
 
       // destroy the old copy
       d1.clear();
@@ -213,7 +215,7 @@ void testWrapping()
 {
 #ifdef TEST3
    // create
-   Deque <string> d(4);
+   deque <string> d(4);
 
    // instructions
    cout << "instructions:\n"
@@ -246,7 +248,7 @@ void testWrapping()
          }
          else if (command == "-f")
          {
-            cout << "\tpop: " << d.front() << endl; 
+            cout << "\tpop: " << d.front() << endl;
             d.pop_front();
          }
          else if (command == "-b")
@@ -257,7 +259,6 @@ void testWrapping()
          else if (command == "?")
          {
             cout << "\tSize:     " << d.size()     << endl;
-            cout << "\tCapacity: " << d.capacity() << endl;
          }
          else if (command == "*")
          {
@@ -287,13 +288,13 @@ void testErrors()
 {
 #ifdef TEST4
    // create
-   Deque <char> d;
+   deque <char> d;
 
    // test using front() with an empty deque
    try
    {
       d.front();
-      cout << "BUG! We should not be able to front() with an empty deque!\n";
+      cout << "\tBUG! We should not be able to front() with an empty deque!\n";
    }
    catch (const char * error)
    {
@@ -305,7 +306,7 @@ void testErrors()
    try
    {
       d.back();
-      cout << "BUG! We should not be able to back() with an empty deque!\n";
+      cout << "\tBUG! We should not be able to back() with an empty deque!\n";
    }
    catch (const char * error)
    {
@@ -317,12 +318,12 @@ void testErrors()
    try
    {
       d.pop_front();
-      cout << "BUG! We should not be able to pop_front() "
-           << "with an empty deque!\n";
+      cout << "\tCorrect! When we pop_front() "
+           << "with an empty deque, nothing bad happens.\n";
    }
    catch (const char * error)
    {
-      cout << "\tDeque::pop_front() error message correctly caught.\n"
+      cout << "\tDeque::pop_front() exception thrown.\n"
            << "\t\"" << error << "\"\n";
    }      
 
@@ -330,12 +331,12 @@ void testErrors()
    try
    {
       d.pop_back();
-      cout << "BUG! We should not be able to pop_back() "
-           << "with an empty deque!\n";
+      cout << "\tCorrect! When we pop_back() "
+           << "with an empty deque, nothing bad happens.\n";
    }
    catch (const char * error)
    {
-      cout << "\tDeque::pop_back() error message correctly caught.\n"
+      cout << "\tDeque::pop_back() exception thrown.\n"
            << "\t\"" << error << "\"\n";
    }      
 
