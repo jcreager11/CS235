@@ -86,7 +86,7 @@ public:
 		}
 		else
 		{
-			return data[0];
+			return data[myfront];
 		}
 	}
 
@@ -100,7 +100,7 @@ public:
 		}
 		else
 		{
-			return data[myback];
+			return data[myback - 1];
 		}
 
 		throw "ERROR: unable to retrieve data from back of deque";
@@ -250,25 +250,26 @@ Deque<T> & Deque <T> :: operator =(const Deque <T> & rhs) throw (const char *)
 template <class T>
 void Deque <T> ::allocate()  throw (const char *)
 {
+	int tempcap = cap;
 	if (cap == 0)
-  {
+	{
 		cap = 1;
-    data = new T[cap];
-  }
+	}
 	else
-  {
+	{
 		cap *= 2;
- 
-	  T* temp = new T[cap];
- 
-	  for (int i = 0; i < items; i++)
-	  {
-		  temp[i] = data[i];
-	  }
+	}
+	T * temp = new T[cap];
+	int j = myfront;
+	for (int i = 0; i<items; i++, j = (j + 1) % tempcap)
+	{
+		temp[i] = data[j];
+	}
 
-	  delete[] data;
-	  data = temp;
-  }
+	delete[] data;
+	data = temp;
+	myfront = 0;
+	myback = items;
 }
 
 /***************************************************
@@ -278,17 +279,15 @@ void Deque <T> ::allocate()  throw (const char *)
 template <class T>
 void Deque <T> ::push_back(T additem)  throw (const char *)
 {
+
 	if (items >= cap)
 	{
 		allocate();
 	}
- 
-  items++;
- 
-  if (items != 1)
-    myback++;
-  
-  data[myback] = additem;
+
+	data[myback] = additem;
+	myback = (myback + 1) % cap;
+	items++;
 	return;
 }
 
@@ -303,10 +302,8 @@ void Deque <T> ::pop_back() throw (const char *)
 {
 	if (items > 0)
 	{
-    items--;
-    
-    if (myback > 0)
-      myback--;
+		myback = (myback - 1 + cap) % cap;
+		items--;
 	}
 	else
 	{
@@ -324,15 +321,8 @@ void Deque <T> ::pop_front() throw (const char *)
 {
 	if (items > 0)
 	{
-		for (int i = 1; i < items; i++)
-    {
-      data[i - 1] = data[i];
-    }
-    
-    if (myback > 0)
-      myback--;
-      
-    items--;
+		myfront = (myfront + 1) % cap;
+		items--;
 	}
 	else
 	{
@@ -351,23 +341,12 @@ void Deque <T> ::push_front(T additem) throw (const char *)
 	{
 		allocate();
 	}
-  
-  T* temp = new T[cap];
-  
-  for (int i = 0; i < items; i++)
-  {
-    temp[i + 1] = data[i];
-  }
-  
-  items++;
-  
-  data = temp;
-  data[0] = additem;
-  
-  if (items != 1)
-    myback++;
-    
+	myfront = (myfront - 1 + cap) % cap;
+	data[myfront] = additem;
+
+	items++;
 	return;
+
 }
 
 #endif

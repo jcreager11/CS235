@@ -107,7 +107,6 @@ void nowServing()
 			servingList.type = false;
 			deque.push_back(servingList);
 
-
 			if (!deque.empty() && temp.min == 0)
 			{
 				temp = deque.front();
