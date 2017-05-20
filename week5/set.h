@@ -28,7 +28,7 @@ class Set
 {
 public:
 	// default constructor : empty and kinda useless
-	Set() : numItems(0), sCapacity(0), data(NULL) {}
+	Set() : numItems(0), cap(0), data(NULL) {}
 
 	// copy constructor : copy it
 	Set(const Set & rhs) throw (const char *);
@@ -37,7 +37,7 @@ public:
 	Set(int capacity) throw (const char *);
 
 	// destructor : free everything
-	~Set() { if (sCapacity) delete[] data; }
+	~Set() { if (cap) delete[] data; }
 
 	// is the container currently empty
 	bool empty() const { return numItems == 0; }
@@ -49,16 +49,16 @@ public:
 	int size() const { return numItems; }
 
 	// how large is the current array?
-	int capacity() const { return sCapacity; }
+	int capacity() const { return cap; }
 
 	// add an item into the set
-	void insert(const T item) const throw(const char *);
+	void insert(const T item) throw(const char *);
 
 	// remove an element from the Set
-	void erase(SetIterator <T> it) const throw(const char *);
+	void erase(SetIterator <T> it) throw(const char *);
 
 	// try to find an item with in the set
-	SetIterator <T> find(T item) const throw(const char *);
+	SetIterator <T> find(T item) throw(const char *);
 
 	// return an iterator to the beginning of the list
 	SetIterator <T> begin() { return SetIterator<T>(data); }
@@ -67,10 +67,7 @@ public:
 	SetIterator <T> end() { return SetIterator<T>(data + numItems); }
 
 	//SUB FUNCTIONS: create and load new array size
-	void allocateAndInti() throw (const char *);
-	void allocateAndInti(T * data) throw (const char *);
-	void load(T * loadData);
-	void load(T * loadInto, T * loadData);
+	void allocate() throw (const char *);
 
 	//OPERATORS
 	// assignment operator
@@ -79,15 +76,15 @@ public:
 	T& operator [](int index) throw (const char *);
 	const T& operator [](int index) const throw (const char *);
 	// intersection operator
-	Set <T> operator &&(Set <T> rhs) const throw (const char *);
+	Set <T> operator &&(Set <T> rhs) throw (const char *);
 	// union operator
-	Set <T> operator ||(Set <T> lhs, Set <T> rhs) const throw (const char *);
+	Set <T> operator ||(Set <T> rhs) throw (const char *);
 
 
 private:
 	T * data;          // dynamically allocated array of T
 	int numItems;      // how many items are currently in the Container?
-	int sCapacity;      // how many items can I put on the Container before full?
+	int cap;      // how many items can I put on the Container before full?
 };
 
 /**************************************************
@@ -151,25 +148,34 @@ private:
 template <class T>
 Set <T> ::Set(const Set <T> & rhs) throw (const char *)
 {
-	assert(rhs.sCapacity >= 0);
+  assert(rhs.cap >= 0);
 
 	// do nothing if there is nothing to do
-	if (rhs.sCapacity == 0)
+	if (rhs.cap == 0)
 	{
-		sCapacity = numItems = 0;
+		cap = numItems = 0;
 		data = NULL;
-		return;
+    return;
 	}
 
-	// copy over the capacity and size
-	assert(rhs.numItems >= 0 && rhs.numItems <= rhs.sCapacity);
-	sCapacity = rhs.sCapacity;
+	// attempt to allocate
+	try
+	{
+		data = new T[rhs.cap];
+	}
+	catch (std::bad_alloc)
+	{
+		throw "ERROR: Unable to allocate buffer";
+	}
+
+	// copy over the vcapacity and size
+	assert(rhs.numItems >= 0 && rhs.numItems <= rhs.cap);
+	cap = rhs.cap;
 	numItems = rhs.numItems;
-	data = NULL;
 
-	allocateAndInti();
-
-	load(rhs.data);
+	// copy the items over one at a time using the assignment operator
+	for (int i = 0; i < numItems; i++)
+		data[i] = rhs.data[i];
 }
 
 /**********************************************
@@ -184,82 +190,44 @@ Set <T> ::Set(int capacity) throw (const char *)
 	// do nothing if there is nothing to do
 	if (capacity == 0)
 	{
-		this->sCapacity = this->numItems = 0;
+		this->cap = this->numItems = 0;
 		this->data = NULL;
 		return;
 	}
 
 	// copy over the stuff
-	this->sCapacity = capacity;
+	this->cap = capacity;
 	this->numItems = 0;
 	this->data = NULL;
 
-	allocateAndInti();
+	allocate();
 }
 
-/***********************************************************
-* sub functions allocateAndInti and load
-* handles intialization of data
-************************************************************/
 template<class T>
-void Set<T>::allocateAndInti() throw (const char *)
-{
-	if (data != NULL)
-	{
-		delete[] data;
-		data = NULL;
-	}
+void Set<T>::allocate() throw (const char *)
+{ 
+  if (numItems < cap)
+    return;
+    
+  if (cap == 0)
+  {
+		cap = 1;
+    data = new T[cap];
+  }
+	else
+  {
+		cap *= 2;
+ 
+	  T* temp = new T[cap];
+ 
+	  for (int i = 0; i < numItems; i++)
+	  {
+		  temp[i] = data[i];
+	  }
 
-	// attempt to allocate
-	try
-	{
-		data = new T[sCapacity];
-	}
-	catch (std::bad_alloc)
-	{
-		throw "ERROR: Unable to allocate buffer";
-	}
-
-	// initialize the container by calling the default constructor
-	for (int i = 0; i < sCapacity; i++)
-		data[i] = T();
-}
-template<class T>
-void Set<T>::allocateAndInti(T * data) throw (const char *)
-{
-	if (data != NULL)
-	{
-		delete[] data;
-		data = NULL;
-	}
-
-	// attempt to allocate
-	try
-	{
-		data = new T[sCapacity];
-	}
-	catch (std::bad_alloc)
-	{
-		throw "ERROR: Unable to allocate buffer";
-	}
-
-	// initialize the container by calling the default constructor
-	for (int i = 0; i < sCapacity; i++)
-		data[i] = T();
-}
-template<class T>
-void Set<T>::load(T * loadData)
-{
-	// copy the items over one at a time using the assignment operator
-	for (int i = 0; i < numItems; i++)
-		data[i] = loadData[i];
-}
-template<class T>
-void Set<T>::load(T * loadInto, T * loadData)
-{
-	// copy the items over one at a time using the assignment operator
-	for (int i = 0; i < numItems; i++)
-		loadInto[i] = loadData[i];
+	  delete[] data;
+	  data = temp;
+  }
 }
 
 /***************************************************
@@ -269,25 +237,36 @@ void Set<T>::load(T * loadInto, T * loadData)
 template<class T>
 Set<T>& Set<T>::operator =(const Set<T> &rhs) throw (const char *)
 {
-	assert(rhs.sCapacity >= 0);
+  assert(rhs.cap >= 0);
 
 	// do nothing if there is nothing to do
-	if (rhs.sCapacity == 0)
+	if (rhs.cap == 0)
 	{
-		sCapacity = numItems = 0;
+		cap = numItems = 0;
 		data = NULL;
-		return *this;
+    return *this;
 	}
 
-	// copy over the capacity and size
-	assert(rhs.numItems >= 0 && rhs.numItems <= rhs.sCapacity);
-	if (sCapacity < rhs.capacity())
-		sCapacity = rhs.sCapacity;
+	// attempt to allocate
+	try
+	{
+		data = new T[rhs.cap];
+	}
+	catch (std::bad_alloc)
+	{
+		throw "ERROR: Unable to allocate buffer";
+	}
+
+	// copy over the vcapacity and size
+	assert(rhs.numItems >= 0 && rhs.numItems <= rhs.cap);
+	cap = rhs.cap;
 	numItems = rhs.numItems;
 
-	allocateAndInti();
-
-	load(rhs.data);
+	// copy the items over one at a time using the assignment operator
+	for (int i = 0; i < numItems; i++)
+		data[i] = rhs.data[i];
+   
+  return *this;
 }
 
 /***************************************************
@@ -295,48 +274,46 @@ Set<T>& Set<T>::operator =(const Set<T> &rhs) throw (const char *)
 * insert an item into the array
 **************************************************/
 template<class T>
-void Set<T>::insert(const T item) const throw(const char *)
+void Set<T>::insert(const T item) throw(const char *)
 {
-	try
-	{
-		// check for atiquit space to add an item
-		bool changed = false;
-		if (sCapacity <= 0)
-		{
-			sCapacity = 1;
-			changed = true;
-		}
-		if (sCapacity <= numItems)
-		{
-			sCapacity = sCapacity * 2;
-			changed = true;
-		}
-		if (changed)
-		{
-			Set<T> temp = Set<T>(*this);
-			allocateAndInti();
-			load(temp.data);
-		}
-		// is the item currently in the Set?
-		// find correct location to insert
-		SetIterator <T> it = find(item);
-		if (!item == it)
-		{
-			// insert the item
-			T next = item;
-			for (SetIterator <T> i = it; it != end(); i++)
-			{
-				// shift the array by one
-				T temp = i;
-				i = next;
-				next = temp;
-			}
-		}
+  allocate();
+
+  SetIterator <T> it = find(item);
+
+  if (*it == item) //if a duplicate is not in the set
+    return;
+    
+  if (numItems == 0)
+  {
+    data[0] = item;
+    numItems++;
+    return;
+  }
+  
+  T last;
+  bool up = false;
+
+  for (int i = 0; i <= numItems; i++)
+  { 
+    if (up)
+    {
+      T temp = data[i];
+      data[i] = last;
+      last = temp;
+    }
+    else if (data[i] > item && !up)
+    {
+      last = data[i];
+      data[i] = item;
+      up = true; //push items up
+    }
+    else if (i == numItems && !up)
+    {
+      data[i] = item;
+    }
 	}
-	catch (exception e)
-	{
-		throw "ERROR: Failed to insert element";
-	}
+ 
+  numItems++;
 }
 
 /***************************************************
@@ -344,29 +321,22 @@ void Set<T>::insert(const T item) const throw(const char *)
 * remove an item from the array
 **************************************************/
 template<class T>
-void Set<T>::erase(SetIterator <T> it) const throw(const char *)
+void Set<T>::erase(SetIterator <T> it) throw(const char *)
 {
-	try
-	{
-		// search for the item
-		T * foundIt = find(*it);
-		// if found delete it
-		if (foundIt == it)
-		{
-			// rearange the array
-			T * previousItem = NULL;
-			for (SetIterator <T> i = end(); i != it; i--)
-			{
-				T * temp = i;
-				i = previousItem;
-				previousItem = temp;
-			}
-		}
-	}
-	catch (exception e)
-	{
-		throw "ERROR: Failed to erase element";
-	}
+  T remObj = *it;
+  bool replace = false;
+  
+  for (int i = 0; i < numItems; i++)
+  {
+    if (data[i] == remObj)
+    {
+      replace = true;
+      numItems--;
+    }
+    
+    if (replace)
+      data[i] = data[i + 1];
+  }
 }
 
 /***************************************************
@@ -374,25 +344,17 @@ void Set<T>::erase(SetIterator <T> it) const throw(const char *)
 * try to find an item with in the set
 **************************************************/
 template<class T>
-SetIterator <T> Set<T>::find(T item) const throw(const char *)
-{
-	int fBegin = 0;
-	int fEnd = numItems;
-	// start the search
-	while (fBegin <= fEnd)
-	{
-		int fMid = (fBegin + fEnd) / 2;
-		if (item = data[fMid])
-			// if item is found return this element
-			return SetIterator(data[fMid]);
-		if (item < data[fMid])
-			fEnd = fMid - 1;
-		else
-			fBegin = fMid + 1;
-	}
-	// if item was not found return last element
-	return SetIterator <T> (data[numItems]);
+SetIterator <T> Set<T>::find(T item) throw(const char *)
+{  
+  for (SetIterator <T> it = begin(); it != end(); it++)
+  {
+    if (*it == item)
+      return it;
+  }
+  
+	return SetIterator <T> (end());
 }
+
 /***************************************************
 * Set :: Operators
 * overriden operators for the Set class
@@ -405,6 +367,7 @@ T& Set<T>::operator [](int index) throw (const char *)
 	else
 		throw "ERROR: Invalid index";
 }
+
 template<class T>
 const T& Set<T>::operator [](int index) const throw (const char *)
 {
@@ -413,28 +376,44 @@ const T& Set<T>::operator [](int index) const throw (const char *)
 	else
 		throw "ERROR: Invalid index";
 }
+
 template<class T>
-inline Set<T> Set<T>::operator&&(Set<T> rhs) const throw(const char *)
+Set<T> Set<T>::operator&&(Set<T> rhs) throw(const char *)
 {
-	Set <T> intersection = new Set <T>();
-	for (SetIterator <T> it = begin(); it != end(); it++)
-	{
-		if (it == rhsit.find(*it))
-		{
-			T temp = *it;
-			intersection.insert(temp);
-		}
-	}
-	return intersection;
+  Set<T> set3;
+
+  for (int i = 0; i < numItems; i++)
+  {
+    for (int j = 0; j < rhs.numItems; j++)
+    {
+      T objA = data[i];
+      T objB = rhs.data[j];
+      
+      if (objA == objB)
+      {
+        set3.insert(objA);
+      }
+    }
+  }
+  
+  return set3;
 }
+
 template<class T>
-inline Set<T> Set<T>::operator||(Set<T> lhs, Set<T> rhs) const throw(const char *)
+Set<T> Set<T>::operator||(Set<T> rhs) throw(const char *)
 {
-	Set <T> unionSet = lhs;
-	for (SetIterator <T> it = rhs.begin(); it != rhs.end(); it++)
-	{
-		unionSet.insert(*it);
-	}
-	return unionSet;
+  Set<T> set3;
+
+  for (int i = 0; i < numItems; i++)
+  {
+    set3.insert(data[i]);
+  }
+  
+  for (int i = 0; i < rhs.numItems; i++)
+  {
+    set3.insert(rhs.data[i]);
+  }
+
+  return set3;
 }
 #endif
