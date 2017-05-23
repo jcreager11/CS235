@@ -22,12 +22,12 @@ public:
 	Node <T> * pNext;
 
 	// constructors
-	Node() pNext : NULL {};
+	Node() { pNext = NULL; };
 	Node(T data) 
 	{
 		this->data = data;
-		this->pNext NULL;
-	}
+		this->pNext = NULL;
+	};
 };
 
 
@@ -38,7 +38,7 @@ public:
 *       list
 **********************************************/
 template<class T>
-Node<T> copy(Node<T> * toCopy)
+Node<T> copy(Node<T> * & toCopy)
 {
 	Node<T> * h;
 	Node<T> * n;
@@ -47,7 +47,7 @@ Node<T> copy(Node<T> * toCopy)
 	
 	//loop throught the list and copy contents
 	//into another linkedlist
-	for (Node<T> * p = toCopy; p; p = p->pNext;)
+	for (Node<T> * p = &toCopy; p; p = p->pNext)
 	{
 		n->data = p->data;
 		//look for the end of the linked list
@@ -117,7 +117,7 @@ Node<T> * find(Node<T> * & pHead, T dataToFind)
 template<class T>
 void operator<<(Node<T> * rhs)
 {
-	for (Node<T> * p = rhs; p; p = p->pNext;)
+	for (Node<T> * p = rhs; p; p = p->pNext)
 	{
 		cout << p->data;
 	}
@@ -141,3 +141,4 @@ void freeData(Node<T> * & pHead)
 }
 
 #endif // NODE_H
+
