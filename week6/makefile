@@ -1,7 +1,7 @@
 ###############################################################
 # Program:
 #     Week 06, NODE
-#     Brother XXXXX, CS235
+#     Brother JonesL, CS235
 # Author:
 #     <your name here>
 # Summary:
