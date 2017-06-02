@@ -27,8 +27,8 @@ public:
 		int carryOver = value;
 		while (carryOver > 0)
 		{
-			list.push_front( carryOver / 1000 );
-			carryOver %= 1000;
+			list.push_front( carryOver % 1000 );
+			carryOver /= 1000;
 		}
 	}
 	BigInt(const BigInt & copy)
