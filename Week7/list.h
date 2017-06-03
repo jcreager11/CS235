@@ -199,15 +199,13 @@ List <T> ::List(const List <T> & copy) throw (const char *)
 template <class T>
 void List <T> ::push_back(T item) throw (const char*)
 {
-	try
-	{
 		node <T> *newnode = new node<T>;
 		newnode->data = item;
+   
 		if (empty())
 		{
 			head = newnode;
 			head->pPrev = NULL;
-
 			head->pNext = NULL;
 			tail = newnode;
 			Size++;
@@ -220,12 +218,6 @@ void List <T> ::push_back(T item) throw (const char*)
 			tail = newnode;
 			Size++;
 		}
-	}
-	catch (std::bad_alloc)
-	{
-		throw "ERROR: unable to allocate a new node for a list";
-	}
-
 }
 
 /********************************************
@@ -238,6 +230,7 @@ void List <T> ::push_front(T item) throw (const char*)
 	{
 		node <T> *newnode = new node<T>;
 		newnode->data = item;
+   
 		if (empty())
 		{
 			head = newnode;
@@ -264,16 +257,31 @@ void List <T> ::push_front(T item) throw (const char*)
 * Assingment Operator
 ***********************************/
 template <class T>
-List<T> & List <T> :: operator = (List &rhs) throw (const char*)
+List<T> & List <T> :: operator = (List<T> &rhs) throw (const char*)
 {
-	this->clear();
-	node <T> *temp = rhs.head;
-	while (temp)
+	//this->clear();
+	//node <T> *temp = rhs.head;
+ /*
+	while (temp != NULL)
 	{
 		node <T> *p = temp;
-		this->push_back(temp->data);
+    
+    //if (temp->dat
+		//this->push_back(temp->data);
 		temp = temp->pNext;
 	}
+ */
+ 	head = NULL;
+	tail = NULL;
+	Size = 0;
+
+	node <T> *pHead = rhs.head;
+	while (pHead != NULL)
+	{
+		push_back(pHead->data);
+		pHead = pHead->pNext;
+	}
+ 
 	return *this;
 }
 
@@ -398,7 +406,7 @@ ListIterator <T> List <T> ::rbegin()
 template <class T>
 ListIterator <T> List <T> ::end()
 {
-	ListIterator <T> newIterator(NULL);
+	ListIterator <T> newIterator;
 	return newIterator;
 }
 
@@ -408,7 +416,7 @@ ListIterator <T> List <T> ::end()
 template <class T>
 ListIterator <T> List <T> ::rend()
 {
-	ListIterator <T> newIterator(NULL);
+	ListIterator <T> newIterator;
 	return newIterator;
 }
 

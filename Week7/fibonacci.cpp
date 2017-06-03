@@ -23,14 +23,20 @@ class BigInt
 public:
 	BigInt() : list(List<int>()){ }
 	BigInt(unsigned int value)
-	{
-		int carryOver = value;
-		while (carryOver > 0)
-		{
-			list.push_front( carryOver % 1000 );
-			carryOver /= 1000;
-		}
+	{  
+    if (value >= 1000)
+      BigInt(value / 1000);
+      
+    list.push_front(value % 1000);
+    
+		//while (carryOver > 0)
+		//{
+			//list.push_front( carryOver % 1000 );
+			//carryOver /= 1000;
+		//}
 	}
+
+/*
 	BigInt(const BigInt & copy)
 	{
 		list.head = copy.list.head;
@@ -39,80 +45,107 @@ public:
 	}
 	~BigInt() { list.clear(); }
 
-
-
 	friend ostream & operator<<(ostream& out, BigInt num);
+ 
+ */
+ 
 	BigInt operator+=(BigInt adder)
 	{
-		int
-			carryOver = 0,
-			first,
-			second;
-
-		ListIterator<int> 
-			adderit = adder.list.end(), 
-			listit = list.end();
-		while ( adderit != adder.list.begin() || listit != list.begin() )
+		int carryOver = 0, first, second;
+		ListIterator<int> adderit = adder.list.rbegin(), listit = list.rbegin();
+   
+    int index = 0;
+   
+		while (adderit != adder.list.rend() || listit != list.rend())
 		{
-			if (adderit != adder.list.begin())
-			{
-				first = *adderit;
-				adderit--;
-			}
+      index++;
+
+      if (adderit != adder.list.rend())
+      {
+		    first = *adderit;
+		    adderit--;
+      }
 			else
 				first = 0;
-
-			if (listit != list.begin())
-			{
-				second = *listit;
-				listit--;
-			}
+      
+			if (listit != list.rend())
+      {
+        second = *listit;
+        
+        int result = first + second + carryOver;
+        
+        if (result >= 1000)
+        {
+          carryOver = 1;
+        }
+        else
+          carryOver = 0;
+          
+			  listit.p->data = result % 1000;     
+        listit--;
+      }
 			else
-				second = 0;
-
-
-			int result = first + second + carryOver;
-			carryOver = result / 1000;
-			listit.p->data = result % 1000;
+      {
+				int result = first + carryOver;
+        
+        if (result >= 1000)
+        {
+          carryOver = 1;
+        }
+        else
+          carryOver = 0;
+          
+        adder.list.push_front(result % 1000);
+      }
 		}
+   
+    if (carryOver == 1)
+    {
+      list.push_front(1);
+      carryOver = 0;
+    }
+   
 		return *this;
 	}
+ 
 	BigInt operator=(BigInt adder)
 	{
 		list = adder.list;
 		return *this;
 	}
+
 	List<int> getList() { return list; }
-private:
-	List<int> list;
+
+  friend ostream & operator<<(ostream & out, BigInt num)
+  {
+	  int sectionCount = 0;
+	  const int SECTIONS_PER_LINE = 20;
+    
+	  for (ListIterator<int> it = num.getList().begin(); it != num.getList().end(); it++)
+	  {
+      if (sectionCount != 0)
+        cout << ',';
+      
+      if (sectionCount != 0)
+      {
+        out << setfill('0');
+        out << setw(3);
+      }
+      else
+        out << setw(0);
+        
+      out << *it;
+      sectionCount++;
+      
+      if (sectionCount > 0 && sectionCount % SECTIONS_PER_LINE == 0);
+				  //out << endl;
+    }
+    return out;
+  }
+  
+  private:
+    List<int> list;
 };
-
-ostream & operator<<(ostream & out, BigInt num)
-{
-	int sectionCount = 0;
-	const int SECTIONS_PER_LINE = 20;
-	for (ListIterator<int> it = num.getList().begin();;)
-	{
-		out << setfill('0');
-		if (sectionCount == 0)
-			out << setfill(' ');
-
-		if (it == num.getList().end())
-			return out;
-
-		out << setw(3) << *it;
-		sectionCount++;
-
-		it++;
-		if (it != num.getList().end())
-		{
-			out << ",";
-			if (sectionCount > 0 && sectionCount % SECTIONS_PER_LINE == 0)
-				out << endl;
-		}
-	}
-	return out;
-}
 #endif // !BIGINT
 
 /************************************************
@@ -124,28 +157,34 @@ ostream & operator<<(ostream & out, BigInt num)
 List<BigInt> f(int num)
 {
 	List<BigInt> nums = List<BigInt>();
+ 
 	for (int i = 0; i < num; i++)
 	{
 		//push a new number into the list that is equal to the previous 2 numbers
 		if (nums.size() < 2)
+   {
 			nums.push_back(BigInt(1));
+   }
 		else
 		{
 			BigInt result = nums.tail->data;
-				result += nums.tail->pPrev->data;
+			result += nums.tail->pPrev->data;
 			nums.push_back(result);
 		}
 	}
+  
 	return nums;
 }
 
 void displayF(int num)
 {
 	List<BigInt> nums = f(num);
-
+  int x = 0;
+  
 	for (ListIterator<BigInt> it = nums.begin(); it != nums.end(); it++)
 	{
-		cout << "\t" << it.p->data << "\n";
+    x++;
+    cout << "\t" << it.p->data << endl;
 	}
 }
 
@@ -164,7 +203,7 @@ void fibonacci()
    cin  >> number;
 
    // your code to display the <number>th Fibonacci number
-   cout << "\t" << f(number).tail << "\n";
+   cout << "\t" << *(f(number).rbegin()) << "\n";
 }
 
 
