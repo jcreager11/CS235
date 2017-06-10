@@ -1,3 +1,9 @@
+#ifndef BNODE_H
+#define BNODE_H
+
+#include <iostream>
+#include <cassert>
+
 #include <iostream>
 using namespace std;
 
@@ -163,3 +169,5 @@ ostream & operator << (ostream & out, BinaryNode<T>* node)
   
   return out;
 }
+
+#endif //BNODE
