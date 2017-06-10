@@ -17,7 +17,7 @@ void huffman(string filename)
 
    if(fin.fail())
    {
-      cout << "error HERE";
+      cout << "ERROR cannot open file";
       cin.clear();
       cin.ignore(256, '\n');
    }
