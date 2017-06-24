@@ -166,18 +166,21 @@ void findSpot(BinaryNode<T>* node, T value)
 {
   if (value < node->data)
   {
+	  //if we found the spot
     if (node->pLeft == NULL)
     {
-      node->addLeft(value);
-      return;
+		node->addLeft(value);
+		return;
     }
     
     findSpot(node->pLeft, value);
   }
   else if (value >= node->data)
   {
+	  //if we found the spot
     if (node->pRight == NULL)
     {
+		//Step 2 Right
       node->addRight(value);
       return;
     }
@@ -187,18 +190,204 @@ void findSpot(BinaryNode<T>* node, T value)
 }
 
 /*
+* Return where to insert a value.
+*/
+template <class T>
+BinaryNode<T>* getSpot(BinaryNode<T>* node, T value)
+{
+	if (value < node->data)
+	{
+		//if we found the spot
+		if (node->pLeft == NULL)
+		{
+			return node->pLeft;
+		}
+
+		findSpot(node->pLeft, value);
+	}
+	else if (value >= node->data)
+	{
+		//if we found the spot
+		if (node->pRight == NULL)
+		{
+			return node->pRight;
+		}
+
+		findSpot(node->pRight, value);
+	}
+}
+
+/*
 * Inserts a node into the binary search tree.
+* Using Red-Black Tree balancing.
 */
 template <class T>
 void BST<T> :: insert(T value)
 {
+	//step 1 no parent
   if (root == NULL)
   {
     root = new BinaryNode<T>(value);
+	root->setBlack();
     return;
   }
+  BinaryNode<T> * node = getSpot(root, value);
+  BinaryNode<T> * parent = node->pParent;
+   //step 2 Parent is BLACK
+  if (parent->isBlack())
+  {
+	  node = new BinaryNode<T>(value);
+	  return;
+  }
+  assert(parent->isRed);
+  //set relatives
+  BinaryNode<T> * grandParent = parent->pParent;
+  BinaryNode<T> * aunt;
+  if (grandParent->pLeft == parent)
+  {
+	  aunt = grandParent->pRight;
+  }
+  else
+  {
+	  aunt = grandParent->pLeft;
+  }
+  //step 3 Parent is RED, Grandparent is BLACK, Aunt is RED
+  if (grandParent->isBlack() && aunt->isRed)
+  {
+	  //recolor all three
+	  parent->setBlack();
+	  grandParent->setRed();
+	  aunt->setBlack();
+	  //add the node
+	  node = new BinaryNode<T>(value);
+	  return;
+  }
+  //step 4 Parent is RED, Grandparent is BLACK, Aunt is BLACK
+  if (grandParent->isBlack() && aunt->isBlack())
+  {
+	  //reloaction is needed at this point, we will need to 
+	  //determine which type of rotation is needed to balance
+	  //our tree there are four subcases
+	  //4a: node is the left child, parent is the left child 
+	  //(right rotate/move parent to grandparent location)
+	  if (node == parent->pLeft && parent == grandParent->pLeft)
+	  {
+		  //relocate nodes
+		  grandParent->pLeft = parent->pRight;
+		  grandParent->pLeft->pParent = grandParent;
+		  parent->pRight = grandParent;
+		  if (grandParent->pParent == NULL)
+		  {
+			  parent->pParent = NULL;
+		  }
+		  else
+		  {
+			  parent->pParent = grandParent->pParent;
+		  }
+		  root = parent;
+		  //add the node
+		  node = new BinaryNode<T>(value);
+		  //color the nodes
+		  parent->setBlack();
+		  grandParent->setRed();
+		  return;
+	  }
+	  //4b: node is the right child, parent is the left child
+	  //(relocate node to gradparent location)
+	  if (node == parent->pRight && parent == grandParent->pLeft)
+	  {
+		  if (node == NULL)
+		  {
+			  //add the node
+			  node = new BinaryNode<T>(value);
+		  }
+		  //relocate the nodes
+		  grandParent->pLeft = node->pRight;
+		  parent->pRight = node->pLeft;
+		  node->pLeft = parent;
+		  node->pRight = grandParent;
+		  if (grandParent->pParent == NULL)
+		  {
+			  node->pParent = NULL;
+		  }
+		  else
+		  {
+			  node->pParent = grandParent->pParent;
+		  }
+		  root = node;
+		  //color the nodes
+		  root->setBlack();
+		  grandParent->setRed();
+		  return;
+	  }
+	  //4c: node is the right child, parent is the right child
+	  //(left rotate/move parent to grandparent location)
+	  if (parent->pRight == node && grandParent->pRight == parent)
+	  {
+		  //relocate the nodes
+		  grandParent->pRight = parent->pLeft;
+		  parent->pLeft = grandParent;
+		  if (grandParent->pParent == NULL)
+		  {
+			  parent->pParent = NULL;
+		  }
+		  else
+		  {
+			  parent->pParent = grandParent->pParent;
+		  }
+		  root = parent;
+		  //add the node
+		  node = new BinaryNode<T>(value);
+		  //color the nodes
+		  parent->setBlack();
+		  grandParent->setRed();
+		  return;
+	  }
+	  //4d: node is the left child, parent is the right child
+	  if (parent->pLeft == node && grandParent->pRight == parent)
+	  {
+		  //relocate the nodes
+		  grandParent->pRight = node->pLeft;
+		  node->pLeft = grandParent;
+		  parent->pLeft = node->pRight;
+		  node->pRight = parent;
+		  if (grandParent->pParent == NULL)
+		  {
+			  node->pParent = NULL;
+		  }
+		  else
+		  {
+			  node->pParent = grandParent->pParent;
+		  }
+		  //add the node
+		  node = new BinaryNode<T>(value);
+		  //color the nodes
+		  grandParent->setRed();
+		  node->setBlack();
+		  return;
+	  }
+	  //if you get to this point there was an error.
+  }
   
-  findSpot(root, value);
+}
+
+/*
+* Inserts a node into the binary search tree.
+*/
+/*
+template <class T>
+void BST<T> ::insert(T value)
+{
+	//step 1 no parent
+	if (root == NULL)
+	{
+		BinaryNode<T> * node = new BinaryNode<T>(value);
+		node->setRed();
+		root = node;
+		return;
+	}
+
+	findSpot(root, value);
 }
 
 template <class T>
@@ -211,6 +400,7 @@ int numChildren(BinaryNode<T>* node)
   else
     return 1;
 }
+*/
 
 template <class T>
 bool isLeftChild(BinaryNode<T>* node)
