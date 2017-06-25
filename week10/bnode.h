@@ -12,8 +12,8 @@ template <class T>
 class BinaryNode
 {
 public:
-  BinaryNode() : pLeft(NULL), pRight(NULL), pParent(NULL), numNodes(1), isRed(false) {}
-  BinaryNode(T value) : data(value), numNodes(1), pLeft(NULL), pRight(NULL), pParent(NULL), isRed(false) {}
+  BinaryNode() : pLeft(NULL), pRight(NULL), pParent(NULL), numNodes(1), isRed(true) {}
+  BinaryNode(T value) : data(value), numNodes(1), pLeft(NULL), pRight(NULL), pParent(NULL), isRed(true) {}
   
   void addLeft(T);
   void addLeft(BinaryNode<T>*);

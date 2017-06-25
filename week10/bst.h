@@ -18,7 +18,7 @@ class BST
 {
 public:
   //CONSTRUCTORS
-  BST() : root(NULL) {}
+  BST() : root(NULL), redBlackSort(true) {}
   BST(BST<T>* tree);
   ~BST();
   
@@ -39,6 +39,12 @@ public:
   BSTIterator<T> end();
   BSTIterator<T> rbegin();
   BSTIterator<T> rend();
+  
+  //steps for red/black node tree:
+  void step2(BinaryNode<T>*);
+  void step3(BinaryNode<T>*);
+  
+  bool redBlackSort;
   
 private:
   BinaryNode<T>* root;
@@ -162,28 +168,195 @@ void BST<T> :: clear()
 * Find where to insert a value.
 */
 template <class T>
-void findSpot(BinaryNode<T>* node, T value)
+BinaryNode<T>* findSpot(BinaryNode<T>* node, T value)
 {
+  BinaryNode<T>* returnNode;
+  
   if (value < node->data)
   {
     if (node->pLeft == NULL)
     {
       node->addLeft(value);
-      return;
+      return node->pLeft;
     }
     
-    findSpot(node->pLeft, value);
+    returnNode = findSpot(node->pLeft, value);
   }
   else if (value >= node->data)
   {
     if (node->pRight == NULL)
     {
       node->addRight(value);
-      return;
+      return node->pRight;
     }
     
-    findSpot(node->pRight, value);
+    returnNode = findSpot(node->pRight, value);
   }
+  
+  return returnNode;
+}
+
+template <class T>
+bool isLeftChild(BinaryNode<T>* node)
+{
+  if (node->pParent->pLeft == node)
+    return true;
+    
+  return false;
+}
+
+template <class T>
+void BST<T> :: step2 (BinaryNode<T>* insertNode)
+{
+  if (insertNode == root)
+    insertNode->isRed = false;
+  else
+    step3(insertNode);
+}
+
+template <class T>
+void leftLeft (BinaryNode<T>* parent)
+{
+  assert(parent->pParent != NULL);
+  BinaryNode<T>* grandparent = parent->pParent;
+  
+  if (grandparent->pParent != NULL)
+  {
+    if (isLeftChild(grandparent))
+    {
+      grandparent->pParent->pLeft = parent;
+      parent->pParent = grandparent->pParent;
+    }
+    else
+    {
+      grandparent->pParent->pRight = parent;
+      parent->pParent = grandparent->pParent;
+    }
+  }
+  else
+    parent->pParent = NULL;
+  
+  grandparent->pLeft = parent->pRight;
+  
+  if (grandparent->pLeft != NULL)
+    grandparent->pLeft->pParent = grandparent;
+  
+  parent->pRight = grandparent;
+  parent->pRight->pParent = parent;
+  
+  //switch colors
+  parent->isRed = false;
+  grandparent->isRed = true;
+}
+
+template <class T>
+void rightRight (BinaryNode<T>* parent)
+{
+  assert(parent->pParent != NULL);
+  BinaryNode<T>* grandparent = parent->pParent;
+  
+  if (grandparent->pParent != NULL)
+  {
+    if (isLeftChild(grandparent))
+    {
+      grandparent->pParent->pLeft = parent;
+      parent->pParent = grandparent->pParent;
+    }
+    else
+    {
+      grandparent->pParent->pRight = parent;
+      parent->pParent = grandparent->pParent;
+    }
+  }
+  else
+    parent->pParent = NULL;
+  
+  grandparent->pRight = parent->pLeft;
+  
+  if (grandparent->pRight != NULL)
+    grandparent->pRight->pParent = grandparent;
+  
+  parent->pLeft = grandparent;
+  parent->pLeft->pParent = parent;
+  
+  //switch colors
+  parent->isRed = false;
+  grandparent->isRed = true;
+}
+
+template <class T>
+void BST<T> :: step3 (BinaryNode<T>* insertNode)
+{
+  assert(insertNode != NULL);
+  assert(insertNode->pParent != NULL);
+  
+  BinaryNode<T>* parent = insertNode->pParent;
+  
+  if (parent->isRed == false)
+    return;
+    
+  BinaryNode<T>* grandparent = parent->pParent;
+  BinaryNode<T>* aunt;
+  
+  if (isLeftChild(parent))
+    aunt = grandparent->pRight;
+  else
+    aunt = grandparent->pLeft;
+    
+  if (aunt != NULL)
+  {
+    if (aunt->isRed)
+    {
+      parent->isRed = false;
+      aunt->isRed = false;
+
+      //grandparent
+      grandparent->isRed = true;
+      step2(grandparent);
+      
+      return;
+    }
+  }
+  
+  if (isLeftChild(parent) && isLeftChild(insertNode)) //LEFT-LEFT
+  {
+    leftLeft(parent);
+  }
+  else if (isLeftChild(parent) && !isLeftChild(insertNode)) //LEFT-RIGHT
+  {
+    grandparent->pLeft = insertNode;
+    insertNode->pParent = grandparent;
+    
+    parent->pRight = insertNode->pLeft;
+    
+    if (parent->pRight != NULL)
+      parent->pRight->pParent = parent;
+    
+    insertNode->pLeft = parent;
+    parent->pParent = insertNode;
+    
+    leftLeft(insertNode);
+  }
+  else if (!isLeftChild(parent) && !isLeftChild(insertNode)) //RIGHT-RIGHT
+  {
+    rightRight(parent);
+  }
+  else if (!isLeftChild(parent) && isLeftChild(insertNode)) //RIGHT-LEFT
+  {
+    grandparent->pRight = insertNode;
+    insertNode->pParent = grandparent;
+    
+    parent->pLeft = insertNode->pRight;
+    
+    if (parent->pLeft != NULL)
+      parent->pLeft->pParent = parent;
+    
+    insertNode->pRight = parent;
+    parent->pParent = insertNode;
+    
+    rightRight(insertNode);
+  }
+  //aunt is null or black
 }
 
 /*
@@ -192,13 +365,18 @@ void findSpot(BinaryNode<T>* node, T value)
 template <class T>
 void BST<T> :: insert(T value)
 {
+  BinaryNode<T>* insertNode;
+  
   if (root == NULL)
   {
     root = new BinaryNode<T>(value);
-    return;
+    insertNode = root;
   }
-  
-  findSpot(root, value);
+  else
+    insertNode = findSpot(root, value);
+    
+  if (redBlackSort == true)
+    step2(insertNode);
 }
 
 template <class T>
@@ -210,15 +388,6 @@ int numChildren(BinaryNode<T>* node)
     return 2;
   else
     return 1;
-}
-
-template <class T>
-bool isLeftChild(BinaryNode<T>* node)
-{
-  if (node->pParent->pLeft == node)
-    return true;
-    
-  return false;
 }
 
 /*

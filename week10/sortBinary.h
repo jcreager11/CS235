@@ -7,6 +7,7 @@ template <class T>
 void sortBinary(T array[], int numItems)
 {
   BST<T> tree;
+  tree.redBlackSort = false;
   
   for (int i = 0; i < numItems; i++)
   {

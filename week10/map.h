@@ -12,7 +12,7 @@ class Map
 {
 public:
   //constructors/destructors:
-  Map() : numItems(0) {}
+  Map() : numItems(0) {tree.redBlackSort = false;}
   Map(const Map<T1, T2> & copy) : numItems(copy.numItems) {tree = copy.tree;}
   ~Map() {this->clear();} //simply call the clear function
   
