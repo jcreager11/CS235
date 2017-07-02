@@ -36,9 +36,28 @@ public:
       compares++;
       return value > rhs.value;
    }
+   bool operator < (const SortValue & rhs) const
+   {
+     compares++;
+     return value < rhs.value;
+   }
+   bool operator >= (const SortValue & rhs) const
+   {
+     compares++;
+     return value >= rhs.value;
+   }
+   bool operator <= (const SortValue & rhs) const
+   {
+     compares++;
+     return value <= rhs.value;
+   }
    bool operator == (const SortValue & rhs) const
    {
       return value == rhs.value;
+   }
+   bool operator != (const SortValue & rhs) const
+   {
+     return value != rhs.value;
    }
 
    // assignment

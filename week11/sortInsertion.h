@@ -1,26 +1,61 @@
 /***********************************************************************
- * Module:
- *    Week 11, Sort Insertion
- *    Brother Helfrich, CS 235
- * Author:
- *    <your name>
+ * Header:
+ *    INSERTION SORT
  * Summary:
- *    This program will implement the Insertion Sort
+ *    This will contain just the prototype for insertionSortTest(). You may
+ *    want to put other class definitions here as well.
+ * Author
+ *    <your names here>
  ************************************************************************/
 
-#ifndef SORT_INSERTION_H
-#define SORT_INSERTION_H
+#ifndef INSERTION_SORT_H
+#define INSERTION_SORT_H
 
-#include <cassert>
+#include <iostream>
+#include "node.h"
 
-/*****************************************************
- * SORT INSERTION
- * Perform the insertion sort
- ****************************************************/
+/***********************************************
+* INSERTION SORT
+* Sort the items in the array
+**********************************************/
 template <class T>
 void sortInsertion(T array[], int num)
 {
+  Node<T>* n = new Node<T>(array[0]);
+  Node<T>* l = n; //loop node
+  
+  cout << ""; //oddly enough only runs when cout is called.
+  
+  //copy items over
+  for (int i = 1; i < num; i++)
+  {
+    for (Node<T>* l = n; l; l = l->pNext)
+    {
+      if (l->pNext == NULL)
+      {
+        if (array[i] < l->data)
+          insert(array[i], n, true); //if it is no greater than any current value then insert it at beginning
+        else
+          insert(array[i], l); //or else insert it at the end
+          
+        break;
+      }
+      else if (array[i] >= l->data && array[i] <= l->pNext->data) //if (current <= data <= next) insert it after current
+      {
+        insert(array[i], l);
+        break;
+      }
+    }
+  }
+  
+  int i = 0;
+  
+  for (Node<T> * l = n; l; l = l->pNext)
+  {
+    array[i] = l->data;
+    i++;
+  }
 }
 
+#endif // INSERTION_SORT_H
 
-#endif // SORT_INSERTION_H

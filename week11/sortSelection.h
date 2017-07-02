@@ -18,14 +18,15 @@
 template <class T>
 void sortSelection(T array[], int num)
 {
-	for (int i = 1; i < num -1; i++)
+	for (int i = 0; i < num - 1; i++)
 	{
 		int leastIndex = i;
 		T leastValue = array[leastIndex];
-		for (int j = i + 1; j < n - 1; j++)
+		for (int j = i + 1; j < num; j++)
 		{
 			//find smallest value
-			if (array[j] < leastValue)
+      
+			if (leastValue > array[j])
 			{
 				leastIndex = j;
 				leastValue = array[j];
